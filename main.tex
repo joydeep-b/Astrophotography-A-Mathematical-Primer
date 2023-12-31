@@ -1,0 +1,79 @@
+\documentclass[biblatex]{lni}
+\addbibresource{references.bib}
+\usepackage{booktabs}
+\usepackage{dsfont}
+\usepackage[]{blindtext}
+
+\newcommand{\eqlabel}[1]{\label{eq:#1}}
+\let\eqref\undefined
+\newcommand{\eqref}[1]{Eq.~\ref{eq:#1}}
+
+\newcommand{\poisson}[1]{\ensuremath{\mathds{P}(#1)}}
+\newcommand{\normal}[2]{\ensuremath{\mathds{N}(#1,#2)}}
+\newcommand{\E}[1]{\ensuremath{\mathds{E}(#1)}}
+\newcommand{\Var}[1]{\ensuremath{\mathrm{Var}(#1)}}
+
+\begin{document}
+\title{A Mathematical Primer For Astrophotography}
+%%%\subtitle{Untertitel / Subtitle} % falls benötigt
+\author[1]{Joydeep Biswas}{joydeepb@cs.utexas.edu}{0000-0002-1211-1731}
+\affil[1]{The University of Texas at Austin\\Department of Computer Science\\1752 Speedway, Stop D9500, Austin TX 78712\\USA}
+\maketitle
+
+\begin{abstract}
+Astrophotography is an increasingly popular hobby, and coincident with its increase in popularity there is an increasing interest in mathematical understanding of the . This article serves to summarize precisely and mathematically, the underlying processes and statistical phenomena governing astrophotography, drawing from existing sources, and compiling a reading list for the interested hobbyist.
+\end{abstract}
+
+% \begin{keywords}
+% LNI Guidelines \and \LaTeX\ Vorlage
+% \end{keywords}
+
+\section{Preliminaries: Statistics, Notation, And Identities}
+We will be dealing with random variables drawn from two key types of distributions:
+\begin{enumerate}
+    \item Poisson distribution with parameter $\lambda$: $\poisson{\lambda}$
+    \item Normal distribution with mean $\mu$, standard deviation $\sigma$: $\E{\mu}{\sigma}$
+\end{enumerate}
+Note that $\lambda$ is a \emph{sufficient statistic} for $\poisson{\lambda}$, and $\mu,\sigma$ are sufficient statistics for $\normal{\mu}{\sigma}$.
+\section{Imaging Noise}
+
+Exact values of sensor gain, dark current, and read noise can be determined via a straightforward calibration process~\cite{stark2009signal3}.
+\begin{itemize}
+    \item Signal measured at a single pixel: $s$
+    \item Signal from target: $s_t$
+    \item Sky glow from noise pollution: $s_g$
+    \item Read noise: $s_r$
+    \item Dark current: $s_d$
+    \item Standard deviation of target, sky glow, read noise, dark current: $\sigma_t, \sigma_g, \sigma_r, \sigma_d$
+\end{itemize}
+
+
+The generative noise model for the signal is,
+\begin{align}
+    s &= s_t + s_g + s_d + s_r, \\
+    s_t &\sim \poisson{\lambda_t} \approx \normal{\lambda_t}{\lambda_t^2}, \\
+    s_g &\sim \poisson{\lambda_g} \approx \normal{\lambda_g}{\lambda_g^2}, \\
+    s_d &\sim \poisson{\lambda_d} \approx \normal{\lambda_d}{\lambda_d^2}, \\
+    s_r &\sim \normal{0}{\sigma_r}.
+\end{align}
+
+Each of these distributions are assumed to be statistically independent of the others --- which is a reasonable assumption. Hence, the expected value, variance, and standard deviation of the signal are,
+\begin{align}
+    \E{s} &= \E{s_t} + \E{s_g} + \E{s_d} + \E{s_r} \\
+    &= \lambda_t + \lambda_g + \lambda_d\\
+    \Var{s} &= \Var{s_t} + \Var{s_g} + \Var{s_d} + \Var{s_r}\\
+    &= \lambda_t^2 + \lambda_g^2 + \lambda_d^2 + \sigma_r^2\\
+    \sigma(s) &= \Var{s}^\frac{1}{2}\\
+    &= \left(\lambda_t^2 + \lambda_g^2 + \lambda_d^2 + \sigma_r^2\right)^\frac{1}{2} \eqlabel{total_sigma}
+\end{align}
+
+The signal to noise ratio (SNR) of the \emph{target} signal (\emph{not} the total signal!) is given by,
+\begin{align}
+    \mathrm{SNR}(s_t) &= \frac{\E{s_t}}{\sigma{s}} \\
+    &= \frac{\lambda_t}{\left(\lambda_t^2 + \lambda_g^2 + \lambda_d^2 + \sigma_r^2\right)^\frac{1}{2}} \eqlabel{snr}
+\end{align}
+\paragraph{Remarks:} \eqref{snr} illustrates the importance of dark skies for astrophotography: the denominator (from \eqref{total_sigma}) is dominated by $\lambda_g^2$, also known as the shot noise of the sky glow. Furthermore, as vividly illustrated in C. Stark's article~\cite{stark2009signal2}, the importance of a cooled, low read-noise and low dark-current DSO camera is moot in urban skies since $\lambda_d, \lambda_r << \lambda_g$ under such conditions. 
+
+\printbibliography
+
+\end{document}
